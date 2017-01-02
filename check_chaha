@@ -1,0 +1,19 @@
+#!/bin/bash
+
+HISTORYCHECK="./chaha_history.txt"
+if [[ ! -f $HISTORYCHECK ]]; then
+        echo "Creating history file"
+        touch ./chaha_history.txt
+fi
+
+CURRENT=$(curl -s http://charlottehackers.com/ | grep '<p class="chaha-date">' | sed -e 's/^[ \t]*//; s/<p class="chaha-date">//; s/<\/p>//')
+HISTORY=$(tail -1 chaha_history.txt)
+
+if [[ "$CURRENT" == "$HISTORY" ]]; then
+        exit 0
+else
+        echo -e "New Date!\n$CURRENT\nhttp://charlottehackers.com/"
+fi
+
+echo "$CURRENT" >> chaha_history.txt
+exit 0
