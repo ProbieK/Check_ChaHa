@@ -6,13 +6,30 @@ if [[ ! -f $HISTORYCHECK ]]; then
         touch ./chaha_history.txt
 fi
 
+# Set Email variables
+from='cha-ha-script@mydomain.com'
+to='me@mydomain.com'
+subject='New Date For Cha-Ha!'
+smtpserver='smtp.mydomain.com'
+
 CURRENT=$(curl -s http://charlottehackers.com/ | grep '<p class="chaha-date">' | sed -e 's/^[ \t]*//; s/<p class="chaha-date">//; s/<\/p>//')
 HISTORY=$(cat ./chaha_history.txt)
 
 if [[ "$CURRENT" == "$HISTORY" ]]; then
         exit 0
 else
-        echo -e "New Date!\n$CURRENT\nhttp://charlottehackers.com/"
+    	NEW_CHAHA=$(echo -e "New Date!\n$CURRENT\nhttp://charlottehackers.com/")
+fi
+
+EMAIL_ALERT_BODY=$(
+if [ ! -z "$NEW_CHAHA" ]; then
+  echo "$NEW_CHAHA"
+fi
+)
+
+#Send Email
+if [ ! -z "$EMAIL_ALERT_BODY" ]; then
+        mail -S smtp="$smtpserver" -s "$subject" -r "$from" "$to" <<< "$EMAIL_ALERT_BODY"
 fi
 
 echo "$CURRENT" > chaha_history.txt
